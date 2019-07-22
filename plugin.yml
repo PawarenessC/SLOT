@@ -1,0 +1,14 @@
+name: SLOT
+main: pawarenessc\slot\Main
+version: 8.9
+api: [4.0.0,3.0.0,3.5.0]
+author: PawarenessC
+load: POSTWORLD
+description: play slot.
+commands:
+ slot:
+  description: "スロットを楽しみましょう"
+  usage: "/slot"
+ slotui:
+  description: "スロットのformです"
+  usage: "/slotui"
