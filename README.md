@@ -1,1 +1,3 @@
 # SLOT
+/slot
+/slotui
