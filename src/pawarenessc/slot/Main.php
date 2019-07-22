@@ -743,7 +743,7 @@ class Main extends pluginBase implements Listener
 		'text' => "backslotを行う/キャンセル"];
 		$buttons[] = [
 		'text' => "設定"];
-		$this->sendForm($p,"SLOT","            SLOTv8.6     \n",$buttons,8000); //いえい
+		$this->sendForm($p,"SLOT","            §lv§b{$this->getDescription()->getVersion()}     \n",$buttons,8000); //いえい
 	}
 	
 	public function SlotUIa($p)
@@ -760,7 +760,7 @@ class Main extends pluginBase implements Listener
 		'text' => "SLOTの設定"];
 		$buttons[] = [
 		'text' => "デバッグ\n§4悪用厳禁"];
-		$this->sendForm($p,"SLOT","             SLOTv8.6     \n§l権限者用のFormです\n",$buttons,8000);
+		$this->sendForm($p,"SLOT","             §l§b{$this->getDescription()->getVersion()}§r     \n§l権限者用のFormです\n",$buttons,8000);
 	}
 	
 	public function onDataPacketReceiveEvent(DataPacketReceiveEvent $event) {
