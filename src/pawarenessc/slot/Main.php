@@ -32,7 +32,7 @@ use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
-use pocketmine\network\mcpe\protocol\EntityEventPacket;
+use pocketmine\network\mcpe\protocol\ActorEventPacket;
 
 use MixCoinSystem\MixCoinSystem;
 use metowa1227\moneysystem\api\core\API;
@@ -390,7 +390,7 @@ class Main extends pluginBase implements Listener
 				
 				$ps = array();
 				$ps[] = $p;
-				$p->broadcastEntityEvent(EntityEventPacket::CONSUME_TOTEM,null,$ps);
+				$p->broadcastEntityEvent(ActorEventPacket::CONSUME_TOTEM,null,$ps);
 				
 				break;
 			}
