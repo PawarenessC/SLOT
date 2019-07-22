@@ -388,10 +388,19 @@ class Main extends pluginBase implements Listener
 				$this->config->set("ジャックポット", $this->config->get("初期ジャックポット"));
 				$this->config->save();
 				
-				$ps = array();
-				$ps[] = $p;
-				$p->broadcastEntityEvent(ActorEventPacket::CONSUME_TOTEM,null,$ps);
 				
+				$inv = $p->getInventory();
+				$i = $inv->getItemInHand();
+				$inv->setItemInHand(Item::get(ItemIds::TOTEM));
+				$p->broadcastEntityEvent(ActorEventPacket::CONSUME_TOTEM);
+				$inv->setItemInHand($i);/*冬月さんありがとうございました！*/
+				
+				
+				$pk = new LevelEventPacket();
+				$pk->evid = LevelEventPacket:: EVENT_SOUND_TOTEM;
+				$pk->data = 0;
+				$pk->position = $p->asVector3();
+				$p->dataPacket($pk);
 				break;
 			}
 		}elseif($s1 == $kaku1 && $s2 == $kaku2 && $s3 == $kaku3 or $kaku == 1) //確定ってやつ？ 起動時に3つの数字を乱数生成し、抽選番号がそれと合致するか、1/999の確率で確定を起こす
