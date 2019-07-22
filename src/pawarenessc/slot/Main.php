@@ -21,6 +21,7 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
 use pocketmine\block\Block;
+use pocketmine\item\Item;
 
 use pocketmine\math\Vector3;
 
