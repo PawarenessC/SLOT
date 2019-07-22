@@ -22,6 +22,7 @@ use pocketmine\command\CommandSender;
 
 use pocketmine\block\Block;
 use pocketmine\item\Item;
+use pocketmine\item\ItemIds;
 
 use pocketmine\math\Vector3;
 
