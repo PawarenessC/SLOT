@@ -74,6 +74,7 @@ class Main extends pluginBase implements Listener
 			"ジャックポット" => 10000,
 			"LastPlayer" => "NO NAME",
 			"LastJackPot" => 0,
+			"UpdateInterval" => 1,
 			]);
 			
 			$this->xyz = new Config($this->getDataFolder()."xyz.yml", Config::YAML,
@@ -93,8 +94,9 @@ class Main extends pluginBase implements Listener
 			
 			$this->stop = new Config($this->getDataFolder() ."stop.yml", Config::YAML);
 			
-				$this->system = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI");
-				$this->getServer()->getPluginManager()->registerEvents($this, $this);
+			$this->system = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI");
+			$this->getServer()->getPluginManager()->registerEvents($this, $this);
+			
 			$this->slot = [];
 			$this->slota = [];
 			$this->slotb = [];
@@ -132,7 +134,8 @@ class Main extends pluginBase implements Listener
 			$this->ftp = new FloatingTextParticle($pos,$text,$title);
 			$level->addParticle($this->ftp);
 			
-			$this->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this, "slotinfo"]), 20);
+			$int = $this->config->get("UpdateInterval") * 20;
+			$this->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this, "slotinfo"]), $int);
 			
 			
   		}
