@@ -1,6 +1,6 @@
 name: SLOT
 main: pawarenessc\slot\Main
-version: 8.9.4
+version: 8.9.5
 api: [4.0.0,3.0.0,3.5.0]
 author: PawarenessC
 load: POSTWORLD
