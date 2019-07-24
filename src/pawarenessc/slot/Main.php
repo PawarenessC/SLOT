@@ -228,7 +228,7 @@ class Main extends pluginBase implements Listener
 		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),60);
 		}
 	}
 	
@@ -253,7 +253,7 @@ class Main extends pluginBase implements Listener
 		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),60);
 		}
 	}
 	
@@ -287,7 +287,7 @@ class Main extends pluginBase implements Listener
 		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),60);
 		}
 	}
 	
@@ -1180,8 +1180,9 @@ class Main extends pluginBase implements Listener
 					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $result[0], $result[1], $result[2]]),10);
 					break;
 					}else{
+					$s1 = mt_rand(1,9);
 					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
-					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p]),60);
+					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),60);
 					break;
 					}
 					break;
