@@ -228,7 +228,7 @@ class Main extends pluginBase implements Listener
 		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p, $s1]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p]),60);
 		}
 	}
 	
@@ -253,7 +253,7 @@ class Main extends pluginBase implements Listener
 		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p, $s1]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p]),60);
 		}
 	}
 	
@@ -287,7 +287,7 @@ class Main extends pluginBase implements Listener
 		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p, $s1]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p]),60);
 		}
 	}
 	
@@ -899,6 +899,8 @@ class Main extends pluginBase implements Listener
 		'text' => "SLOTの設定"];
 		$buttons[] = [
 		'text' => "デバッグ\n§4悪用厳禁"];
+		$buttons[] = [
+		'text' => "ウルトラスロットを自分に実行する\n§4悪用厳禁"];
 		$this->sendForm($p,"SLOT","             §l§b{$this->getDescription()->getVersion()}§r     \n§l権限者用のFormです\n",$buttons,8000);
 	}
 	
@@ -1030,7 +1032,13 @@ class Main extends pluginBase implements Listener
 								"text" => "§l3桁目",
 								"placeholder" => "",
 								"default" => "",
+							],
+							[
+								"type" => "toggle",
+								"text" => "§lウルトラジャックポット",
+								"default" => false,
 							]
+							
 						]
 						];
 						$this->createWindow($p, $data, 94941);
@@ -1167,8 +1175,15 @@ class Main extends pluginBase implements Listener
 					break;
 					
 					case 94941: //Debug
+					if($result[3]){
 					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
 					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $result[0], $result[1], $result[2]]),10);
+					break;
+					}else{
+					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
+					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p]),60);
+					break;
+					}
 					break;
 				}
 			}
