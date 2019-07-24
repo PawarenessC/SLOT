@@ -319,7 +319,7 @@ class Main extends pluginBase implements Listener
 	
 	public function bslot3($p,$s1,$s2) //バッググラウンド
 	{
-		$s3 = mt_rand(1,13);
+		$s3 = mt_rand(1,21);
 		if($s3 == 10){ $s3 = 3; }
 		if($s3 == 11){ $s3 = 3; }
 		if($s3 == 12){ $s3 = 3; }
