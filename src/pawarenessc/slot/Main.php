@@ -45,6 +45,7 @@ class Main extends pluginBase implements Listener
 		public $slota = [];
 		public $slotb = [];
 		public $ftp;
+		public $godp;
 		
 		
 		public function onEnable()
@@ -53,6 +54,8 @@ class Main extends pluginBase implements Listener
 			$this->kaku1 = mt_rand(1,9);
 			$this->kaku2 = mt_rand(1,9);
 			$this->kaku3 = mt_rand(1,9);
+    		
+    		$this->godp = 0;
     		
     		$this->getLogger()->info("=========================");
  			$this->getLogger()->info("SLOTを読み込みました");
@@ -209,12 +212,24 @@ class Main extends pluginBase implements Listener
 	
 	public function slot1($p)
 	{
+		$god = mt_rand(1,8192);
+		if($god !== 1){
 		$s1 = mt_rand(1,10);
 		if($s1 == 10){ $s1 = 1; }
 		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot2"], [$p, $s1]),30);
+	
+		}else{
+		
+		$s1 = mt_rand(1,10);
+		if($s1 == 10){ $s1 = 1; }
+		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
+		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
+		$this->oto($p, "pop");
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p, $s1]),60);
+		}
 	}
 	
 	public function fslot1($p) //再抽選用
@@ -262,6 +277,16 @@ class Main extends pluginBase implements Listener
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot3"], [$p, $s1, $s2]),30);
 	}
 	
+	public function gslot2($p,$s1) //god用
+	{
+		$s2 = mt_rand(1,10);
+		if($s2 == 10){ $s2 = 2; }
+		if($s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§c§k?§r§f]"); }else{
+		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c§k?§r§f]"); }
+		$this->oto($p, "pop");
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot3"], [$p, $s1, $s2]),60);
+	}
+	
 	public function fslot2($p,$s1) //再抽選
 	{
 		$s2 = mt_rand(1,13);
@@ -302,6 +327,16 @@ class Main extends pluginBase implements Listener
 		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]"); }
 		$this->oto($p, "pop");
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $s1, $s2, $s3]),20);
+	}
+	
+	public function gslot3($p,$s1,$s2)
+	{
+		$s3 = mt_rand(1,10);
+		if($s3 == 10){ $s3 = 3; }
+		if($s3 == 7 && $s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§6{$s3}§f]","",20,15,10); }else{
+		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]"); }
+		$this->oto($p, "pop");
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p, $s1, $s2, $s3]),60);
 	}
 	
 	public function fslot3($p,$s1,$s2) //再抽選
@@ -575,6 +610,86 @@ class Main extends pluginBase implements Listener
 		
 		$this->config->set("ジャックポット", $this->config->get("初期ジャックポット"));
 		$this->config->save();
+	}
+	
+	public function gPerformance1($p)
+	{
+		$s = mt_rand(1,9);
+		$p->addTitle("§f[§4{$s}§f]-[§4?§f]-[§4?§f]");
+		$this->oto($p, "bad");
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPer2"], [$p]),10);
+	}
+	
+	public function gPer2($p)
+	{
+		$s = mt_rand(1,9);
+		$p->addTitle("§f[§4{$s}§r§f]-[§4{$s}§f]-[§4?§f]");
+		$this->oto($p, "bad");
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPer3"], [$p]),10);
+	}
+	
+	public function gPer3($p)
+	{
+		$this->godp++;
+		$s = mt_rand(1,9);
+		$p->addTitle("§f[§4{$s}§r§f]-[§4{$s}§f]-[§4{$s}§f]");
+		$this->oto($p, "bad");
+		if($this->godp == 10){
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p]),10);
+		
+		}else{
+		$this->godp = 0;
+		$p->addTitle("§l§aU§bL§cT§eR§fA §dJ§6A§4C§7K§bP§aO§2T§4!!");
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "godsu"], [$p]),40);
+		}
+	}
+	
+	public function godsu($p)
+	{
+		$this->oto($p, "what");
+		$this->oto($p, "good");
+		$this->oto($p, "bad");
+		//やりすぎ？
+		
+		$p->sendMessage("§l§bSLOT>> §6おめでとうございます、あなたは当選しました！！！");
+		$money = $this->config->get("ジャックポット");
+		$num = mt_rand(2,7);
+		$moneyn = $money * $num;
+		$this->addMoney($moneyn, $p);
+				
+		$p->sendMessage("§b§lSLOT>> §6ウルトラジャックポット§bおめでとうございます！");
+		$p->sendMessage("§b§lSLOT>> §6{$money}円手に入れた！");
+			
+			
+		$this->getServer()->broadcastMessage("§lSLOT>> §a{$p->getName()}さんがウルトラジャックポットにより、 {$money}円の{$num}倍、{$moneyn}円を手に入れました！");
+		$this->getServer()->broadcastMessage("§lSLOT>> ジャックポットが{$this->config->get("初期ジャックポット")}に戻りました");
+		
+		$name = $p->getName();
+		
+		$this->JoinType($name);
+		
+		$this->config->set("LastPlayer", $name);
+		$this->config->save();
+		$this->config->set("LastJackPot", $this->config->get("ジャックポット"));
+		$this->config->save();
+		//$this->slotinfo();
+		
+		
+		$this->config->set("ジャックポット", $this->config->get("初期ジャックポット"));
+		$this->config->save();
+		
+		$inv = $p->getInventory();
+		$i = $inv->getItemInHand();
+		$inv->setItemInHand(Item::get(ItemIds::TOTEM));
+		$p->broadcastEntityEvent(ActorEventPacket::CONSUME_TOTEM);
+		$inv->setItemInHand($i);/*冬月さんありがとうございました！*/
+		
+		
+		$pk = new LevelEventPacket();
+		$pk->evid = LevelEventPacket:: EVENT_SOUND_TOTEM;
+		$pk->data = 0;
+		$pk->position = $p->asVector3();
+		$p->dataPacket($pk);
 	}
 	
   	public function addMoney($money, $p)
