@@ -55,9 +55,9 @@ class Main extends pluginBase implements Listener
 			$this->kaku2 = mt_rand(1,9);
 			$this->kaku3 = mt_rand(1,9);
     		
-    		$this->godp = 0;
+    			$this->godp = 0;
     		
-    		$this->getLogger()->info("=========================");
+    			$this->getLogger()->info("=========================");
  			$this->getLogger()->info("SLOTを読み込みました");
  			$this->getLogger()->info("制作者: PawarenessC");
  			$this->getLogger()->info("ライセンス: NYSL Version 0.9982");
@@ -66,7 +66,7 @@ class Main extends pluginBase implements Listener
  			$this->getLogger()->info("スロットの確定番号は {$this->kaku1}{$this->kaku2}{$this->kaku3} です");
  			$this->getLogger()->info("=========================");
        
-        	$this->config = new Config($this->getDataFolder()."Setup.yml", Config::YAML,
+        		$this->config = new Config($this->getDataFolder()."Setup.yml", Config::YAML,
 			[
 			
 			"説明" > "プラグインは使用する経済プラグイン(EconomyAPI,MoneySystem,MixCoinSystem)から選んで記入してください、値段は一回スロットをする値段、ジャックポット以外の賞金は777以外のゾロ目が当たった時の値段を設定してください、ジャックポットは弄らない方がいいです",
@@ -234,6 +234,8 @@ class Main extends pluginBase implements Listener
 	
 	public function fslot1($p) //再抽選用
 	{
+		$god = mt_rand(1,8192);
+		if($god !== 1){
 		$s1 = mt_rand(1,13);
 		if($s1 == 10){ $s1 = 1; }
 		if($s1 == 11){ $s1 = 1; }
@@ -243,10 +245,22 @@ class Main extends pluginBase implements Listener
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "fslot2"], [$p, $s1]),10);
+		
+		}else{
+		
+		$s1 = mt_rand(1,10);
+		if($s1 == 10){ $s1 = 1; }
+		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
+		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
+		$this->oto($p, "pop");
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p, $s1]),60);
+		}
 	}
 	
 	public function bslot1($p) //バッググラウンド用
 	{
+		$god = mt_rand(1,8192);
+		if($god !== 1){
 		$name = $p->getName();
 		if($this->slotb[$name] == true)
 		{
@@ -265,7 +279,17 @@ class Main extends pluginBase implements Listener
 			if($s1 == 21){ $s1 = 1; }
 			$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bslot2"], [$p, $s1]),10);
 		}
-	}	
+		
+		}else{
+		
+		$s1 = mt_rand(1,10);
+		if($s1 == 10){ $s1 = 1; }
+		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
+		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
+		$this->oto($p, "pop");
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p, $s1]),60);
+		}
+	}
 	
 	public function slot2($p,$s1)
 	{
