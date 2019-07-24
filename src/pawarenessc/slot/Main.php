@@ -1026,7 +1026,7 @@ class Main extends pluginBase implements Listener
 								"type" => "toggle",
 								"text" => "§lウルトラジャックポット",
 								"default" => false,
-							]
+							],
 							[
 								"type" => "input",
 								"text" => "§l1桁目",
