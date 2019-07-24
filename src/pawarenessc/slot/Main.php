@@ -228,7 +228,7 @@ class Main extends pluginBase implements Listener
 		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),20);
 		}
 	}
 	
@@ -253,7 +253,7 @@ class Main extends pluginBase implements Listener
 		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),20);
 		}
 	}
 	
@@ -287,7 +287,7 @@ class Main extends pluginBase implements Listener
 		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),20);
 		}
 	}
 	
@@ -304,9 +304,8 @@ class Main extends pluginBase implements Listener
 	public function gslot2($p,$s1) //god用
 	{
 		$s2 = mt_rand(1,10);
-		if($s2 == 10){ $s2 = 2; }
-		if($s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§c§k?§r§f]"); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c§k?§r§f]"); }
+		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c§k?§r§f]");
+		$this->getServer()->broadcastMessage("§lSLOTDebug>> glot2作動");
 		$this->oto($p, "pop");
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot3"], [$p, $s1, $s2]),20);
 	}
@@ -357,10 +356,10 @@ class Main extends pluginBase implements Listener
 	{
 		$s3 = mt_rand(1,10);
 		if($s3 == 10){ $s3 = 3; }
-		if($s3 == 7 && $s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§6{$s3}§f]","",20,15,10); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]"); }
+		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]");
+		$this->getServer()->broadcastMessage("§lSLOTDebug>> glot3作動");
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p, $s1, $s2, $s3]),20);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p]),20);
 	}
 	
 	public function fslot3($p,$s1,$s2) //再抽選
@@ -640,6 +639,7 @@ class Main extends pluginBase implements Listener
 	{
 		$s = mt_rand(1,9);
 		$p->addTitle("§f[§4{$s}§f]-[§4?§f]-[§4?§f]");
+		$this->getServer()->broadcastMessage("§lSLOTDebug>> per1作動");
 		$this->oto($p, "bad");
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPer2"], [$p]),10);
 	}
@@ -648,6 +648,7 @@ class Main extends pluginBase implements Listener
 	{
 		$s = mt_rand(1,9);
 		$p->addTitle("§f[§4{$s}§r§f]-[§4{$s}§f]-[§4?§f]");
+		$this->getServer()->broadcastMessage("§lSLOTDebug>> per2作動");
 		$this->oto($p, "bad");
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPer3"], [$p]),10);
 	}
@@ -658,6 +659,7 @@ class Main extends pluginBase implements Listener
 		$s = mt_rand(1,9);
 		$p->addTitle("§f[§4{$s}§r§f]-[§4{$s}§f]-[§4{$s}§f]");
 		$this->oto($p, "bad");
+		$this->getServer()->broadcastMessage("§lSLOTDebug>> per3作動");
 		if($this->godp !== 10){
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p]),10);
 		
@@ -1021,6 +1023,11 @@ class Main extends pluginBase implements Listener
 						"title" => "SETUP",
 						"content" => [
 							[
+								"type" => "toggle",
+								"text" => "§lウルトラジャックポット",
+								"default" => false,
+							],
+							[
 								"type" => "input",
 								"text" => "§l1桁目",
 								"placeholder" => "",
@@ -1038,11 +1045,6 @@ class Main extends pluginBase implements Listener
 								"placeholder" => "",
 								"default" => "",
 							],
-							[
-								"type" => "toggle",
-								"text" => "§lウルトラジャックポット",
-								"default" => false,
-							]
 							
 						]
 						];
@@ -1180,9 +1182,9 @@ class Main extends pluginBase implements Listener
 					break;
 					
 					case 94941: //Debug
-					if($result[3]){
+					if($result[0]){
 					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
-					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $result[0], $result[1], $result[2]]),10);
+					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $result[1], $result[2], $result[3]]),10);
 					break;
 					}else{
 					$s1 = mt_rand(1,9);
