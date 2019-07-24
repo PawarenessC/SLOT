@@ -308,7 +308,7 @@ class Main extends pluginBase implements Listener
 		if($s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§c§k?§r§f]"); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c§k?§r§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot3"], [$p, $s1, $s2]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot3"], [$p, $s1, $s2]),20);
 	}
 	
 	public function fslot2($p,$s1) //再抽選
@@ -360,7 +360,7 @@ class Main extends pluginBase implements Listener
 		if($s3 == 7 && $s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§6{$s3}§f]","",20,15,10); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]"); }
 		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p, $s1, $s2, $s3]),60);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p, $s1, $s2, $s3]),20);
 	}
 	
 	public function fslot3($p,$s1,$s2) //再抽選
@@ -658,13 +658,20 @@ class Main extends pluginBase implements Listener
 		$s = mt_rand(1,9);
 		$p->addTitle("§f[§4{$s}§r§f]-[§4{$s}§f]-[§4{$s}§f]");
 		$this->oto($p, "bad");
-		if($this->godp == 10){
+		if($this->godp !== 10){
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p]),10);
 		
 		}else{
 		$this->godp = 0;
 		$p->addTitle("§l§aU§bL§cT§eR§fA §dJ§6A§4C§7K§bP§aO§2T§4!!");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "godsu"], [$p]),40);
+		
+		$pk = new LevelEventPacket();
+		$pk->evid = LevelEventPacket:: EVENT_SOUND_TOTEM;
+		$pk->data = 0;
+		$pk->position = $p->asVector3();
+		$p->dataPacket($pk);
+		
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "godsu"], [$p]),30);
 		}
 	}
 	
@@ -899,8 +906,6 @@ class Main extends pluginBase implements Listener
 		'text' => "SLOTの設定"];
 		$buttons[] = [
 		'text' => "デバッグ\n§4悪用厳禁"];
-		$buttons[] = [
-		'text' => "ウルトラスロットを自分に実行する\n§4悪用厳禁"];
 		$this->sendForm($p,"SLOT","             §l§b{$this->getDescription()->getVersion()}§r     \n§l権限者用のFormです\n",$buttons,8000);
 	}
 	
@@ -1182,7 +1187,7 @@ class Main extends pluginBase implements Listener
 					}else{
 					$s1 = mt_rand(1,9);
 					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
-					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),60);
+					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),10);
 					break;
 					}
 					break;
