@@ -305,7 +305,7 @@ class Main extends pluginBase implements Listener
 	{
 		$s2 = mt_rand(1,10);
 		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c§k?§r§f]");
-		$this->getServer()->broadcastMessage("§lSLOTDebug>> glot2作動");
+		//$this->getServer()->broadcastMessage("§lSLOTDebug>> glot2作動");
 		$this->oto($p, "pop");
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot3"], [$p, $s1, $s2]),20);
 	}
@@ -357,7 +357,7 @@ class Main extends pluginBase implements Listener
 		$s3 = mt_rand(1,10);
 		if($s3 == 10){ $s3 = 3; }
 		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]");
-		$this->getServer()->broadcastMessage("§lSLOTDebug>> glot3作動");
+		//$this->getServer()->broadcastMessage("§lSLOTDebug>> glot3作動");
 		$this->oto($p, "pop");
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p]),20);
 	}
@@ -639,7 +639,7 @@ class Main extends pluginBase implements Listener
 	{
 		$s = mt_rand(1,9);
 		$p->addTitle("§f[§4{$s}§f]-[§4?§f]-[§4?§f]");
-		$this->getServer()->broadcastMessage("§lSLOTDebug>> per1作動");
+		//$this->getServer()->broadcastMessage("§lSLOTDebug>> per1作動");
 		$this->oto($p, "bad");
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPer2"], [$p]),10);
 	}
@@ -648,7 +648,7 @@ class Main extends pluginBase implements Listener
 	{
 		$s = mt_rand(1,9);
 		$p->addTitle("§f[§4{$s}§r§f]-[§4{$s}§f]-[§4?§f]");
-		$this->getServer()->broadcastMessage("§lSLOTDebug>> per2作動");
+		//$this->getServer()->broadcastMessage("§lSLOTDebug>> per2作動");
 		$this->oto($p, "bad");
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPer3"], [$p]),10);
 	}
@@ -659,7 +659,7 @@ class Main extends pluginBase implements Listener
 		$s = mt_rand(1,9);
 		$p->addTitle("§f[§4{$s}§r§f]-[§4{$s}§f]-[§4{$s}§f]");
 		$this->oto($p, "bad");
-		$this->getServer()->broadcastMessage("§lSLOTDebug>> per3作動");
+		//$this->getServer()->broadcastMessage("§lSLOTDebug>> per3作動");
 		if($this->godp !== 10){
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p]),10);
 		
@@ -682,7 +682,6 @@ class Main extends pluginBase implements Listener
 		$this->oto($p, "what");
 		$this->oto($p, "good");
 		$this->oto($p, "bad");
-		//やりすぎ？
 		
 		$p->sendMessage("§l§bSLOT>> §6おめでとうございます、あなたは当選しました！！！");
 		$money = $this->config->get("ジャックポット");
