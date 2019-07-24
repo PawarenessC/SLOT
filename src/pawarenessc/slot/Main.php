@@ -691,7 +691,7 @@ class Main extends pluginBase implements Listener
 		$this->addMoney($moneyn, $p);
 				
 		$p->sendMessage("§b§lSLOT>> §6ウルトラジャックポット§bおめでとうございます！");
-		$p->sendMessage("§b§lSLOT>> §6{$money}円手に入れた！");
+		$p->sendMessage("§b§lSLOT>> §6{$moneyn}円手に入れた！");
 			
 			
 		$this->getServer()->broadcastMessage("§lSLOT>> §a{$p->getName()}さんがウルトラジャックポットにより、 {$money}円の{$num}倍、{$moneyn}円を手に入れました！");
@@ -908,6 +908,8 @@ class Main extends pluginBase implements Listener
 		'text' => "SLOTの設定"];
 		$buttons[] = [
 		'text' => "デバッグ\n§4悪用厳禁"];
+		$buttons[] = [
+		'text' => "素晴らしい\n§4悪用厳禁"];
 		$this->sendForm($p,"SLOT","             §l§b{$this->getDescription()->getVersion()}§r     \n§l権限者用のFormです\n",$buttons,8000);
 	}
 	
@@ -1023,11 +1025,6 @@ class Main extends pluginBase implements Listener
 						"title" => "SETUP",
 						"content" => [
 							[
-								"type" => "toggle",
-								"text" => "§lウルトラジャックポット",
-								"default" => false,
-							],
-							[
 								"type" => "input",
 								"text" => "§l1桁目",
 								"placeholder" => "",
@@ -1049,6 +1046,12 @@ class Main extends pluginBase implements Listener
 						]
 						];
 						$this->createWindow($p, $data, 94941);
+						break;
+						
+						case 6:
+						$s1 = mt_rand(1,9);
+						$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
+						$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),10);
 						break;
 					}
 					break;
@@ -1182,16 +1185,8 @@ class Main extends pluginBase implements Listener
 					break;
 					
 					case 94941: //Debug
-					if($result[0]){
 					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
-					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $result[1], $result[2], $result[3]]),10);
-					break;
-					}else{
-					$s1 = mt_rand(1,9);
-					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
-					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),10);
-					break;
-					}
+					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $result[0], $result[1], $result[2]]),10);
 					break;
 				}
 			}
