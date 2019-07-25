@@ -1194,6 +1194,7 @@ class Main extends pluginBase implements Listener
 					$s1 = mt_rand(1,9);
 					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
 					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),10);
+					}
 					break;
 				}
 			}
