@@ -906,9 +906,7 @@ class Main extends pluginBase implements Listener
 		$buttons[] = [
 		'text' => "SLOTの設定"];
 		$buttons[] = [
-		'text' => "デバッグ\n§4悪用厳禁"];
-		$buttons[] = [
-		'text' => "素晴らしい\n§4悪用厳禁"];
+		'text' => "デバッグ\n§l§4悪用厳禁"];
 		$this->sendForm($p,"SLOT","             §l§b{$this->getDescription()->getVersion()}§r     \n§l権限者用のFormです\n",$buttons,8000);
 	}
 	
@@ -1023,6 +1021,10 @@ class Main extends pluginBase implements Listener
 						"type" => "custom_form",
 						"title" => "SETUP",
 						"content" => [
+							[
+								"type" => "label",
+								"text" => "§lウルトラジャックポットを実行する際は全部aと打ってください"
+							],
 							[
 								"type" => "input",
 								"text" => "§l1桁目",
@@ -1184,8 +1186,14 @@ class Main extends pluginBase implements Listener
 					break;
 					
 					case 94941: //Debug
+					if($result[1] !== "a"){
 					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
-					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $result[0], $result[1], $result[2]]),10);
+					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $result[1], $result[2], $result[3]]),10);
+					break;
+					}else{
+					$s1 = mt_rand(1,9);
+					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
+					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),10);
 					break;
 				}
 			}
