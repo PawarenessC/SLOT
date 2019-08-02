@@ -708,7 +708,7 @@ class Main extends pluginBase implements Listener
 		
 		$this->config->set("LastPlayer", $name);
 		$this->config->save();
-		$this->config->set("LastJackPot", $this->config->get("ジャックポット"));
+		$this->config->set("LastJackPot", $moneyn);
 		$this->config->save();
 		//$this->slotinfo();
 		
@@ -1019,6 +1019,8 @@ class Main extends pluginBase implements Listener
 						'text' => "JPを変更"];//2
 						$buttons[] = [
 						'text' => "1回の値段を変更"];//3
+						$buttons[] = [
+						'text' => "浮き文字を一旦消す"];//4
 						$this->sendForm($p,"SLOT","§l設定したい項目を選択してください\n",$buttons,8002);
 						break;
 						
@@ -1167,6 +1169,15 @@ class Main extends pluginBase implements Listener
 						]
 						];
 						$this->createWindow($p, $data, 8006);
+						break;
+						
+						case 4: //一旦消す
+						$xyz = $this->xyz;
+ 						$level_name = $xyz->get("world");
+ 						$level = $this->getServer()->getLevelByName($level_name);
+ 						$this->ftp->setInvisible();
+						$level->addParticle($this->ftp);
+						$p->sendMessage("§l§bSLOT>> §c浮き文字を一旦消去しました");
 						break;
 					}
 					break;
