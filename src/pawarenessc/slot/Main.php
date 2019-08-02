@@ -164,7 +164,7 @@ class Main extends pluginBase implements Listener
   			$this->slotb[$name] = false;
   		}
 	
-		public funtion onQuit(PlayerQuitEvent $event){
+		public function onQuit(PlayerQuitEvent $event)
 		{
 			$name = $event->getPlayer()->getName();
 			$this->JoinType($name);
