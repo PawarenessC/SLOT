@@ -741,7 +741,7 @@ class Main extends pluginBase implements Listener
  		
  		if($plugin == "MoneySystem")
  		{
- 			API::getInstance()->increase($p, $money);
+ 			API::getInstance()->increase($p, $money, "SLOT", "当選のため");
  		}
  	}
  	
