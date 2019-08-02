@@ -883,6 +883,8 @@ class Main extends pluginBase implements Listener
 		$jackpot = $this->config->get("ジャックポット");
 		$lastname = $this->config->get("LastPlayer");
 		$lastjackpot = $this->config->get("LastJackPot");
+		$lasthighname = $this->config->get("LastHighPlayer");
+		$lasthighjp = $this->config->get("LastHighJackPot");
 		
 		$text = $this->info->get("text");
 		$text = str_replace("{br}", "\n", $text);
