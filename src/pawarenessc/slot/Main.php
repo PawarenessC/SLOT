@@ -1151,9 +1151,9 @@ class Main extends pluginBase implements Listener
 									"ジャックポット..{jackpot}\n".
 									"当選確定番号..{kakutei}\n".
 									"最後のジャックポット当選者..{lastname}\n".
-									"最後のジャックポット金額...{lastjackpot}".
-									"最高ジャックポット当選者...{highname}".
-									"最高ジャックポット金額...{highjp}",
+									"最後のジャックポット金額...{lastjackpot}\n".
+									"最高ジャックポット当選者...{highname}\n".
+									"最高ジャックポット金額...{highjp}\n",
 							],
 							[
 								"type" => "input",
