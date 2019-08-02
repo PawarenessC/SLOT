@@ -7,7 +7,7 @@ use pocketmine\utils\TextFormat;
 
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
-use pocketmine\event\player\PlayerMoveEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 
 use pocketmine\Player;
 
@@ -163,6 +163,12 @@ class Main extends pluginBase implements Listener
   			$this->slot[$name] = false;
   			$this->slotb[$name] = false;
   		}
+	
+		public funtion onQuit(PlayerQuitEvent $event){
+		{
+			$name = $event->getPlayer()->getName();
+			$this->JoinType($name);
+		}
   		
   		
   		///////////////////////////////////////////////////////////////////////////////
@@ -781,7 +787,7 @@ class Main extends pluginBase implements Listener
  		
  		if($plugin == "MoneySystem")
  		{
- 			API::getInstance()->reduce($p, $money);
+ 			API::getInstance()->reduce($p, $money, "SLOT", "スロット料金");
  		}
  	}
  	
