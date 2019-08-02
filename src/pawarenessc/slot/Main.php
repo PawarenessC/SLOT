@@ -77,6 +77,8 @@ class Main extends pluginBase implements Listener
 			"ジャックポット" => 10000,
 			"LastPlayer" => "NO NAME",
 			"LastJackPot" => 0,
+			"LastHighPlayer" => "NO NAME",
+			"LastHighJackPot" => 10000000,
 			"UpdateInterval" => 1,
 			]);
 			
@@ -92,7 +94,7 @@ class Main extends pluginBase implements Listener
 			[
 			"説明" => "改行をするときは{br}です",
 			"title" => "=-=-=現在のスロットの情報=-=-={br}",
-			"text" => "§b現在のジャックポット §6{jackpot}§f円{br}§b当選確定番号 §l§f{kakutei}§r§f番{br}§b最後のジャックポット当選者 §l§6{lastname} §f{lastjackpot}円",
+			"text" => "§b現在のジャックポット §6{jackpot}§f円{br}§b当選確定番号 §l§f{kakutei}§r§f番{br}§b最後のジャックポット当選者 §l§6{lastname} §f{lastjackpot}円{$br}§a最後の最高ジャックポット当選者 §l{lasthighname} §d{lasthighjp}",
 			]);
 			
 			$this->stop = new Config($this->getDataFolder() ."stop.yml", Config::YAML);
@@ -112,6 +114,8 @@ class Main extends pluginBase implements Listener
 			$jackpot = $this->config->get("ジャックポット");
 			$lastname = $this->config->get("LastPlayer");
 			$lastjackpot = $this->config->get("LastJackPot");
+			$lasthighname = $this->config->get("LastHighPlayer");
+			$lasthighjp = $this->config->get("LastHighJackPot");
 			
 			$text = $this->info->get("text");
 			$text = str_replace("{br}", "\n", $text);
@@ -119,6 +123,8 @@ class Main extends pluginBase implements Listener
 			$text = str_replace("{kakutei}", $kakutei, $text);
 			$text = str_replace("{lastname}", $lastname, $text);
 			$text = str_replace("{lastjackpot}", $lastjackpot, $text);
+			$text = str_replace("{lasthighname}", $lasthighname, $text);
+			$text = str_replace("{lasthighjp}", $lasthighjp, $text);
 			
 			$title = $this->info->get("title");
 			$title = str_replace("{br}", "\n", $title);
@@ -126,6 +132,8 @@ class Main extends pluginBase implements Listener
 			$title = str_replace("{kakutei}", $kakutei, $title);
 			$title = str_replace("{lastname}", $lastname, $title);
 			$title = str_replace("{lastjackpot}", $lastjackpot, $title);
+			$text = str_replace("{lasthighname}", $lasthighname, $text);
+			$text = str_replace("{lasthighjp}", $lasthighjp, $text);
  			
  			$xyz = $this->xyz;
  			$x = $xyz->get("x");
@@ -452,6 +460,8 @@ class Main extends pluginBase implements Listener
 				$this->config->save();
 				$this->config->set("LastJackPot", $this->config->get("ジャックポット"));
 				$this->config->save();
+				
+				$this->scan($name, $this->config->get("ジャックポット"));
 				//$this->slotinfo();
 				
 				$this->config->set("ジャックポット", $this->config->get("初期ジャックポット"));
@@ -565,6 +575,8 @@ class Main extends pluginBase implements Listener
 				$this->config->save();
 				$this->config->set("LastJackPot", $this->config->get("ジャックポット"));
 				$this->config->save();
+				
+				$this->scan($name, $this->config->get("ジャックポット"));
 				//$this->slotinfo();
 				
 				
@@ -634,6 +646,8 @@ class Main extends pluginBase implements Listener
 		$this->config->save();
 		$this->config->set("LastJackPot", $this->config->get("ジャックポット"));
 		$this->config->save();
+		
+		$this->scan($name, $this->config->get("ジャックポット"));
 		//$this->slotinfo();
 		
 		
@@ -710,6 +724,8 @@ class Main extends pluginBase implements Listener
 		$this->config->save();
 		$this->config->set("LastJackPot", $moneyn);
 		$this->config->save();
+		
+		$this->scan($name, $this->config->get("ジャックポット"));
 		//$this->slotinfo();
 		
 		
@@ -841,7 +857,11 @@ class Main extends pluginBase implements Listener
  		}
  	}
  	
- 	public function slotinfo()
+ 	public function scan($name, $jp){
+	if($this->config->get("LastHighJackPot") < $jp){ $this->config->set("LastHighJackPot", $jp); $this->config->save(); }
+	}
+	
+	public function slotinfo()
  	{
  		$xyz = $this->xyz;
  		$level_name = $xyz->get("world");
@@ -870,6 +890,8 @@ class Main extends pluginBase implements Listener
 		$text = str_replace("{kakutei}", $kakutei, $text);
 		$text = str_replace("{lastname}", $lastname, $text);
 		$text = str_replace("{lastjackpot}", $lastjackpot, $text);
+		$text = str_replace("{lasthighname}", $lasthighname, $text);
+		$text = str_replace("{lasthighjp}", $lasthighjp, $text);
 		
 		$title = $this->info->get("title");
 		$title = str_replace("{br}", "\n", $title);
@@ -877,6 +899,8 @@ class Main extends pluginBase implements Listener
 		$title = str_replace("{kakutei}", $kakutei, $title);
 		$title = str_replace("{lastname}", $lastname, $title);
 		$title = str_replace("{lastjackpot}", $lastjackpot, $title);
+		$text = str_replace("{lasthighname}", $lasthighname, $text);
+		$text = str_replace("{lasthighjp}", $lasthighjp, $text);
 		
  		$x = $xyz->get("x");
  		$y = $xyz->get("y");
