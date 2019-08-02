@@ -94,7 +94,7 @@ class Main extends pluginBase implements Listener
 			[
 			"説明" => "改行をするときは{br}です",
 			"title" => "=-=-=現在のスロットの情報=-=-={br}",
-			"text" => "§b現在のジャックポット §6{jackpot}§f円{br}§b当選確定番号 §l§f{kakutei}§r§f番{br}§b最後のジャックポット当選者 §l§6{lastname} §f{lastjackpot}円{$br}§a最後の最高ジャックポット当選者 §l{lasthighname} §d{lasthighjp}",
+			"text" => "§b現在のジャックポット §6{jackpot}§f円{br}§b当選確定番号 §l§f{kakutei}§r§f番{br}§b最後のジャックポット当選者 §l§6{lastname} §f{lastjackpot}円{br}§a最後の最高ジャックポット当選者 §l{lasthighname} §d{lasthighjp}",
 			]);
 			
 			$this->stop = new Config($this->getDataFolder() ."stop.yml", Config::YAML);
