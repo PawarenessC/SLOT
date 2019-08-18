@@ -1,0 +1,6 @@
+slot.notEnough: "&cお金が足りません！ スロットを一回回すには§f{%1}円&c必要です"
+slot.running: "&cスロット中です。"
+slot.subtitle: "&6抽選を開始します..."
+slot.equal: "&6ゾロ目おめでとうございます!"
+slot.equal.byback: "&6ゾロ目おめでとうございます! &f(&e{%1}-{%2}-{%3}&f)"
+slot.takemoney: "&6{%money}円&a手に入れた！"
