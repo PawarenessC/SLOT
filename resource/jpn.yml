@@ -5,7 +5,7 @@ slot.equal: "&6ゾロ目おめでとうございます!"
 slot.equal.byback: "&6ゾロ目おめでとうございます! &f(&e{%1}-{%2}-{%3}&f)"
 slot.takemoney: "&6{%money}円&a手に入れた！"
 slot.losing: "&c残念...ハズレです..."
-slot.nowjp: "&c現在のジャックポット&e{%1}円"
+slot.nowjackpot: "&c現在のジャックポット&e{%1}円"
 slot.restartslot: "&a外れたので再抽選を行います"
 slot.stopautoslot: "&f再抽選を停止します"
 slot.
