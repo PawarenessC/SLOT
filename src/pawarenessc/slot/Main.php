@@ -89,6 +89,7 @@ class Main extends pluginBase implements Listener
 			"y" => 4,
 			"z" => 284,
 			]);
+            $this->getServer()->loadLevel($this->xyz->get("world"));
 			
 			$this->info = new Config($this->getDataFolder()."info.yml", Config::YAML,
 			[
@@ -278,7 +279,7 @@ class Main extends pluginBase implements Listener
 		$name = $p->getName();
 		if($this->slotb[$name] == true)
 		{
-			$s1 = mt_rand(1,21);
+			$s1 = mt_rand(1,16);
 			if($s1 == 10){ $s1 = 1; }
 			if($s1 == 11){ $s1 = 1; }
 			if($s1 == 12){ $s1 = 1; }
@@ -286,11 +287,6 @@ class Main extends pluginBase implements Listener
 			if($s1 == 14){ $s1 = 1; }
 			if($s1 == 15){ $s1 = 1; }
 			if($s1 == 16){ $s1 = 1; }
-			if($s1 == 17){ $s1 = 1; }
-			if($s1 == 18){ $s1 = 1; }
-			if($s1 == 19){ $s1 = 1; }
-			if($s1 == 20){ $s1 = 1; }
-			if($s1 == 21){ $s1 = 1; }
 			$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bslot2"], [$p, $s1]),10);
 		}
 		
@@ -339,19 +335,14 @@ class Main extends pluginBase implements Listener
 	
 	public function bslot2($p,$s1) //バッググラウンド
 	{
-		$s2 = mt_rand(1,21);
+		$s2 = mt_rand(1,16);
 		if($s2 == 10){ $s2 = 2; }
 		if($s2 == 11){ $s2 = 2; }
 		if($s2 == 12){ $s2 = 2; }
-		if($s2 == 13){ $s2 = 2; }
-		if($s2 == 14){ $s2 = 2; }
-		if($s2 == 15){ $s2 = 2; }
-		if($s2 == 16){ $s2 = 2; }
-		if($s2 == 17){ $s2 = 2; }
-		if($s2 == 18){ $s2 = 2; }
-		if($s2 == 19){ $s2 = 2; }
-		if($s2 == 20){ $s2 = 2; }
-		if($s2 == 21){ $s2 = 2; }
+        if($s2 == 13){ $s2 = 2; }
+        if($s2 == 14){ $s2 = 2; }
+        if($s2 == 15){ $s2 = 2; }
+        if($s2 == 16){ $s2 = 2; }
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bslot3"], [$p, $s1, $s2]),5);
 	}
 	
@@ -378,11 +369,9 @@ class Main extends pluginBase implements Listener
 	
 	public function fslot3($p,$s1,$s2) //再抽選
 	{
-		$s3 = mt_rand(1,13);
+		$s3 = mt_rand(1,11);
 		if($s3 == 10){ $s3 = 3; }
 		if($s3 == 11){ $s3 = 3; }
-		if($s3 == 12){ $s3 = 3; }
-		if($s3 == 13){ $s3 = 3; }
 		if($s3 == 7 && $s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§6{$s3}§f]","",20,15,10); }else{
 		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]"); }
 		$this->oto($p, "pop");
@@ -391,19 +380,13 @@ class Main extends pluginBase implements Listener
 	
 	public function bslot3($p,$s1,$s2) //バッググラウンド
 	{
-		$s3 = mt_rand(1,21);
+		$s3 = mt_rand(1,15);
 		if($s3 == 10){ $s3 = 3; }
 		if($s3 == 11){ $s3 = 3; }
 		if($s3 == 12){ $s3 = 3; }
 		if($s3 == 13){ $s3 = 3; }
 		if($s3 == 14){ $s3 = 3; }
 		if($s3 == 15){ $s3 = 3; }
-		if($s3 == 16){ $s3 = 3; }
-		if($s3 == 17){ $s3 = 3; }
-		if($s3 == 18){ $s3 = 3; }
-		if($s3 == 19){ $s3 = 3; }
-		if($s3 == 20){ $s3 = 3; }
-		if($s3 == 21){ $s3 = 3; }
 		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bend"], [$p, $s1, $s2, $s3]),10);
 	}
 	
@@ -885,6 +868,11 @@ class Main extends pluginBase implements Listener
 		$lastjackpot = $this->config->get("LastJackPot");
 		$highname = $this->config->get("HighPlayer");
 		$highjp = $this->config->get("HighJackPot");
+
+		if($highjp > $lastjackpot){
+		    $this->config->set("HighPlayer",$lastname);
+		    $this->config->set("HighJackPot",$lastjackpot);
+        }
 		
 		$text = $this->info->get("text");
 		$text = str_replace("{br}", "\n", $text);
@@ -1137,6 +1125,7 @@ class Main extends pluginBase implements Listener
 						$xyz->set("world",$level_name);
 						$xyz->save();
 						$p->sendMessage("§b§lSLOT>> 登録しました §a{$x} §b{$y} §e{$z} §d{$level_name}");
+						$this->getServer()->loadLevel($this->xyz->get("world"));
 						break;
 						
 						case 1://内容変更
