@@ -41,573 +41,449 @@ use metowa1227\moneysystem\api\core\API;
 
 class Main extends pluginBase implements Listener
 {
-		public $slot = [];
-		public $slota = [];
-		public $slotb = [];
-		public $ftp;
-		public $godp;
-		
-		
-		public function onEnable()
-    	{
-    					
-			$this->kaku1 = mt_rand(1,9);
-			$this->kaku2 = mt_rand(1,9);
-			$this->kaku3 = mt_rand(1,9);
-    		
-    			$this->godp = 0;
-    		
-    			$this->getLogger()->info("=========================");
- 			$this->getLogger()->info("SLOTを読み込みました");
- 			$this->getLogger()->info("制作者: PawarenessC");
- 			$this->getLogger()->info("ライセンス: NYSL Version 0.9982");
- 			$this->getLogger()->info("http://www.kmonos.net/nysl/");
- 			$this->getLogger()->info("バージョン:{$this->getDescription()->getVersion()}");
- 			$this->getLogger()->info("スロットの確定番号は {$this->kaku1}{$this->kaku2}{$this->kaku3} です");
- 			$this->getLogger()->info("=========================");
-       
-        		$this->config = new Config($this->getDataFolder()."Setup.yml", Config::YAML,
-			[
-			
-			"説明" > "プラグインは使用する経済プラグイン(EconomyAPI,MoneySystem,MixCoinSystem)から選んで記入してください、値段は一回スロットをする値段、ジャックポット以外の賞金は777以外のゾロ目が当たった時の値段を設定してください、ジャックポットは弄らない方がいいです",
-			"プラグイン" => "EconomyAPI",
-			"値段" => 100,
-			"ジャックポット以外の賞金" => 1000,
-			"初期ジャックポット" => 10000,
-			"ジャックポット" => 10000,
-			"LastPlayer" => "NO NAME",
-			"LastJackPot" => 0,
-			"HighPlayer" => "NO NAME",
-			"HighJackPot" => 10000000,
-			"UpdateInterval" => 1,
-			]);
-			
-			$this->xyz = new Config($this->getDataFolder()."xyz.yml", Config::YAML,
-			[
-			"world" => "world",
-			"x" => 281,
-			"y" => 4,
-			"z" => 284,
-			]);
-            $this->getServer()->loadLevel($this->xyz->get("world"));
-			
-			$this->info = new Config($this->getDataFolder()."info.yml", Config::YAML,
-			[
-			"説明" => "改行をするときは{br}です",
-			"title" => "=-=-=現在のスロットの情報=-=-={br}",
-			"text" => "§b現在のジャックポット §6{jackpot}§f円{br}§b当選確定番号 §l§f{kakutei}§r§f番{br}§b最後のジャックポット当選者 §l§6{lastname} §f{lastjackpot}円{br}§a最高ジャックポット当選者 §l{highname} §d{highjp}",
-			]);
-			
-			$this->stop = new Config($this->getDataFolder() ."stop.yml", Config::YAML);
-			
-			$this->system = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI");
-			$this->getServer()->getPluginManager()->registerEvents($this, $this);
-			
-			$this->slot = [];
-			$this->slota = [];
-			$this->slotb = [];
-			
-			$kaku1 = $this->kaku1;
-			$kaku2 = $this->kaku2;
-			$kaku3 = $this->kaku3;
-			
-			$kakutei = $kaku1.$kaku2.$kaku3; //.をつけてくっつける
-			$jackpot = $this->config->get("ジャックポット");
-			$lastname = $this->config->get("LastPlayer");
-			$lastjackpot = $this->config->get("LastJackPot");
-			$highname = $this->config->get("HighPlayer");
-			$highjp = $this->config->get("HighJackPot");
-			
-			$text = $this->info->get("text");
-			$text = str_replace("{br}", "\n", $text);
-			$text = str_replace("{jackpot}", $jackpot, $text);
-			$text = str_replace("{kakutei}", $kakutei, $text);
-			$text = str_replace("{lastname}", $lastname, $text);
-			$text = str_replace("{lastjackpot}", $lastjackpot, $text);
-			$text = str_replace("{highname}", $highname, $text);
-			$text = str_replace("{highjp}", $highjp, $text);
-			
-			$title = $this->info->get("title");
-			$title = str_replace("{br}", "\n", $title);
-			$title = str_replace("{jackpot}", $jackpot, $title);
-			$title = str_replace("{kakutei}", $kakutei, $title);
-			$title = str_replace("{lastname}", $lastname, $title);
-			$title = str_replace("{lastjackpot}", $lastjackpot, $title);
-			$text = str_replace("{lasthighname}", $highname, $text);
-			$text = str_replace("{lasthighjp}", $highjp, $text);
- 			
- 			$xyz = $this->xyz;
- 			$x = $xyz->get("x");
- 			$y = $xyz->get("y");
- 			$z = $xyz->get("z");
- 			$level_name = $xyz->get("world");
- 			$level = $this->getServer()->getLevelByName($level_name);
- 			$pos = new Vector3($x, $y, $z, $level);
-			$this->ftp = new FloatingTextParticle($pos,$text,$title);
-			$level->addParticle($this->ftp);
-			
-			$int = $this->config->get("UpdateInterval") * 20;
-			$this->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this, "slotinfo"]), $int);
-			
-			
-  		}
-  		
-  		public function onJoin(PlayerJoinEvent $event)
-  		{
-  			$player = $event->getPlayer();
-  			$name = $player->getName();
-  			$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "JoinType"], [$name]),20);
-  			$this->slot[$name] = false;
-  			
-  			if(!$this->stop->exists($name))
-			{
-				$this->stop->set($name, 1000);
-				$this->stop->save();
-			}
-  		}
-  		
-  		public function JoinType($name)
-  		{
-  			$this->slota[$name] = false;
-  			$this->slot[$name] = false;
-  			$this->slotb[$name] = false;
-  		}
-	
-		public function onQuit(PlayerQuitEvent $event)
-		{
-			$name = $event->getPlayer()->getName();
-			$this->JoinType($name);
-		}
-  		
-  		
-  		///////////////////////////////////////////////////////////////////////////////
-  		// slot  その名前のプレイヤーのスロットが行われているかどうか
-  		// slota その名前のプレイヤーの自動抽選が有効かどうか
-  		// slotb その名前のプレイヤーがバッググラウンドのスロットを行っているかどうか
-  		///////////////////////////////////////////////////////////////////////////////
-  		
-  	public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
-		$name = $sender->getName();
-		
-		switch($label)
-		{
-			
-			case "slot":
-			$money = $this->getMoney($sender);
-			$price = $this->config->get("値段");
-			if($price > $money)
-			{
-				$sender->sendMessage("§b§lSLOT>> §cお金が足りません！ スロットを一回回すには§f{$price}円§c必要です");
-				return true;
-				break;
-			}elseif($this->slot[$name] == true)
-			{
-				$sender->sendMessage("§b§lSLOT>> §cスロット中です。");
-				return true;
-			}else{
-			
-				$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot1"], [$sender]),30);
-				$sender->addTitle("§f[§e?§f]-[§e?§f]-[§e?§f]","§6抽選を開始します...");
-				$this->oto($sender, "pop");
-				$this->slot[$name] = true;
-				return true;
-			}
-			break;
-			
-			case "slotui":
-			if($sender->isOp()){
-				$this->SlotUIa($sender);
-			}else{
-				$this->SlotUIg($sender);
-			}
-			break;
-		}
-	return true;
-}
-	
-	public function slot1($p)
-	{
-		$god = mt_rand(1,8192);
-		if($god !== 1){
-		$s1 = mt_rand(1,10);
-		if($s1 == 10){ $s1 = 1; }
-		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot2"], [$p, $s1]),30);
-	
-		}else{
-		
-		$s1 = mt_rand(1,10);
-		if($s1 == 10){ $s1 = 1; }
-		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),20);
-		}
-	}
-	
-	public function fslot1($p) //再抽選用
-	{
-		$god = mt_rand(1,8192);
-		if($god !== 1){
-		$s1 = mt_rand(1,13);
-		if($s1 == 10){ $s1 = 1; }
-		if($s1 == 11){ $s1 = 1; }
-		if($s1 == 12){ $s1 = 1; }
-		if($s1 == 13){ $s1 = 1; }
-		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "fslot2"], [$p, $s1]),10);
-		
-		}else{
-		
-		$s1 = mt_rand(1,10);
-		if($s1 == 10){ $s1 = 1; }
-		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),20);
-		}
-	}
-	
-	public function bslot1($p) //バッググラウンド用
-	{
-		$god = mt_rand(1,8192);
-		if($god !== 1){
-		$name = $p->getName();
-		if($this->slotb[$name] == true)
-		{
-			$s1 = mt_rand(1,16);
-			if($s1 == 10){ $s1 = 1; }
-			if($s1 == 11){ $s1 = 1; }
-			if($s1 == 12){ $s1 = 1; }
-			if($s1 == 13){ $s1 = 1; }
-			if($s1 == 14){ $s1 = 1; }
-			if($s1 == 15){ $s1 = 1; }
-			if($s1 == 16){ $s1 = 1; }
-			$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bslot2"], [$p, $s1]),10);
-		}
-		
-		}else{
-		
-		$s1 = mt_rand(1,10);
-		if($s1 == 10){ $s1 = 1; }
-		if($s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a§k?§r§f]-[§c§k?§r§f]"); }
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),20);
-		}
-	}
-	
-	public function slot2($p,$s1)
-	{
-		$s2 = mt_rand(1,10);
-		if($s2 == 10){ $s2 = 2; }
-		if($s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§c§k?§r§f]"); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c§k?§r§f]"); }
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot3"], [$p, $s1, $s2]),30);
-	}
-	
-	public function gslot2($p,$s1) //god用
-	{
-		$s2 = mt_rand(1,10);
-		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c§k?§r§f]");
-		//$this->getServer()->broadcastMessage("§lSLOTDebug>> glot2作動");
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot3"], [$p, $s1, $s2]),20);
-	}
-	
-	public function fslot2($p,$s1) //再抽選
-	{
-		$s2 = mt_rand(1,13);
-		if($s2 == 10){ $s2 = 2; }
-		if($s2 == 11){ $s2 = 2; }
-		if($s2 == 12){ $s2 = 2; }
-		if($s2 == 13){ $s2 = 2; }
-		if($s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§c§k?§r§f]"); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c§k?§r§f]"); }
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "fslot3"], [$p, $s1, $s2]),10);
-	}
-	
-	public function bslot2($p,$s1) //バッググラウンド
-	{
-		$s2 = mt_rand(1,16);
-		if($s2 == 10){ $s2 = 2; }
-		if($s2 == 11){ $s2 = 2; }
-		if($s2 == 12){ $s2 = 2; }
-        if($s2 == 13){ $s2 = 2; }
-        if($s2 == 14){ $s2 = 2; }
-        if($s2 == 15){ $s2 = 2; }
-        if($s2 == 16){ $s2 = 2; }
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bslot3"], [$p, $s1, $s2]),5);
-	}
-	
-	
-	public function slot3($p,$s1,$s2)
-	{
-		$s3 = mt_rand(1,10);
-		if($s3 == 10){ $s3 = 3; }
-		if($s3 == 7 && $s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§6{$s3}§f]","",20,15,10); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]"); }
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $s1, $s2, $s3]),20);
-	}
-	
-	public function gslot3($p,$s1,$s2)
-	{
-		$s3 = mt_rand(1,10);
-		if($s3 == 10){ $s3 = 3; }
-		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]");
-		//$this->getServer()->broadcastMessage("§lSLOTDebug>> glot3作動");
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p]),20);
-	}
-	
-	public function fslot3($p,$s1,$s2) //再抽選
-	{
-		$s3 = mt_rand(1,11);
-		if($s3 == 10){ $s3 = 3; }
-		if($s3 == 11){ $s3 = 3; }
-		if($s3 == 7 && $s2 == 7 && $s1 == 7){ $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§f]-[§6{$s3}§f]","",20,15,10); }else{
-		$p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]"); }
-		$this->oto($p, "pop");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, $s1, $s2, $s3]),10);
-	}
-	
-	public function bslot3($p,$s1,$s2) //バッググラウンド
-	{
-		$s3 = mt_rand(1,15);
-		if($s3 == 10){ $s3 = 3; }
-		if($s3 == 11){ $s3 = 3; }
-		if($s3 == 12){ $s3 = 3; }
-		if($s3 == 13){ $s3 = 3; }
-		if($s3 == 14){ $s3 = 3; }
-		if($s3 == 15){ $s3 = 3; }
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bend"], [$p, $s1, $s2, $s3]),10);
-	}
-	
-	public function end($p,$s1,$s2,$s3)
-	{
-		$money = $this->config->get("値段");
-		$name = $p->getName();
-		$this->cutMoney($p,$money);
-		$this->slot[$name] = false;
-		$kaku = mt_rand(1,999);
-		$kaku1 = $this->kaku1;
-		$kaku2 = $this->kaku2;
-		$kaku3 = $this->kaku3;
-		
-		if($s1 == $s2 && $s1 == $s3)
-		{
-			switch($s1)
-			{
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-				case 8:
-				case 9:
-				
-				$money = $this->config->get("ジャックポット以外の賞金");
-				$this->addMoney($money, $p);
-				$this->oto($p, "good");
-				
-				$p->sendMessage("§b§lSLOT>> §6ゾロ目おめでとうございます！");
-				$p->sendMessage("§b§lSLOT>> §6{$money}円§a手に入れた！");
-				if($this->slota[$name]){ $p->sendMessage("§b§lSLOT>> §f当たったので再抽選を停止します"); }
-				
-				$this->config->set("ジャックポット", $this->config->get("ジャックポット") + $this->config->get("値段"));
-				$this->config->save();
-				//$this->slotinfo();
-				break;
-				
-				case 7:
-				$money = $this->config->get("ジャックポット");
-				$this->addMoney($money, $p);
-				$this->oto($p, "good");
-				
-				$p->sendMessage("§b§lSLOT>> §6ジャックポット§bおめでとうございます！");
-				$p->sendMessage("§b§lSLOT>> §6{$money}円手に入れた！");
-				if($this->slota[$name]){ $p->sendMessage("§b§lSLOT>> §f当たったので再抽選を停止します"); }
-				
-				$this->getServer()->broadcastMessage("§lSLOT>> §a{$p->getName()}さんがジャックポット {$money}円を手に入れました！");
-				$this->getServer()->broadcastMessage("§lSLOT>> ジャックポットが{$this->config->get("初期ジャックポット")}に戻りました");
-				
-				$this->config->set("LastPlayer", $name);
-				$this->config->save();
-				$this->config->set("LastJackPot", $this->config->get("ジャックポット"));
-				$this->config->save();
-				
-				$this->scan($name, $this->config->get("ジャックポット"));
-				//$this->slotinfo();
-				
-				$this->config->set("ジャックポット", $this->config->get("初期ジャックポット"));
-				$this->config->save();
-				
-				
-				$inv = $p->getInventory();
-				$i = $inv->getItemInHand();
-				$inv->setItemInHand(Item::get(ItemIds::TOTEM));
-				$p->broadcastEntityEvent(ActorEventPacket::CONSUME_TOTEM);
-				$inv->setItemInHand($i);/*冬月さんありがとうございました！*/
-				
-				
-				$pk = new LevelEventPacket();
-				$pk->evid = LevelEventPacket:: EVENT_SOUND_TOTEM;
-				$pk->data = 0;
-				$pk->position = $p->asVector3();
-				$p->dataPacket($pk);
-				break;
-			}
-		}elseif($s1 == $kaku1 && $s2 == $kaku2 && $s3 == $kaku3 or $kaku == 1) //確定ってやつ？ 起動時に3つの数字を乱数生成し、抽選番号がそれと合致するか、1/999の確率で確定を起こす
-		{
-			$p->sendMessage("§b§lSLOT>> §c残念...ハズレです...(-ω-)");
-			$this->JoinType($name); //スロットを全て停止
-			$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "kakutei1"], [$p]),50);
-			
-			$pk = new LevelEventPacket();
-			$pk->evid = LevelEventPacket::EVENT_GUARDIAN_CURSE;
-			$pk->data = 0;
-			$pk->position = $p->asVector3();
-			$p->dataPacket($pk);
-			
-		}else
-		{
-			
-			$this->config->set("ジャックポット", $this->config->get("ジャックポット") + $this->config->get("値段"));
-			$this->config->save();
-			//$this->slotinfo();
-			$p->sendMessage("§b§lSLOT>> §c残念...ハズレです...");
-			$p->sendMessage("§b§lSLOT>> §c現在のジャックポット§e{$this->config->get("ジャックポット")}円");
-			$this->oto($p,"bad");
-			$money = $this->config->get("値段");
-			if($this->slota[$name] == true)
-			{
-				if($this->getMoney($p) > $money && $this->canslot($p))
-				{
-					$p->sendMessage("§l§bSLOT>> §a外れたので再抽選を行います");
-					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "fslot1"], [$p]),20);
-					$p->addTitle("§f[§e?§f]-[§e?§f]-[§e?§f]","§6抽選を開始します...");
-					$this->oto($p, "pop");
-					$this->slot[$name] = true;
-				}else
-				{
-					$p->sendMessage("§l§bSLOT>> §c所持金が足りない もしくは 設定した金額まで所持金が減った ので再抽選を停止しました");
-					$this->JoinType($name);
-				}
-			}
-	}
-}
-	
-	public function bend($p,$s1,$s2,$s3)
-	{
-		$money = $this->config->get("値段");
-		$name = $p->getName();
-		$this->cutMoney($p,$money);
-		$this->slot[$name] = false;
-		if($s1 == $s2 && $s1 == $s3)
-		{
-			switch($s1)
-			{
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-				case 5:
-				case 6:
-				case 8:
-				case 9:
-				
-				$money = $this->config->get("ジャックポット以外の賞金");
-				$this->addMoney($money, $p);
-				$this->oto($p, "good");
-				
-				$p->sendMessage("§b§lSLOT>> §6ゾロ目おめでとうございます！ §f(§e{$s1}-{$s2}-{$s3}§f)");
-				$p->sendMessage("§b§lSLOT>> §6{$money}円§a手に入れた！");
-				
-				$this->config->set("ジャックポット", $this->config->get("ジャックポット") + $this->config->get("値段"));
-				$this->config->save();
-				
-				$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bslot1"], [$p]),5);
-				$this->slot[$name] = true;
-				
-				//$this->slotinfo();
-				break;
-				
-				case 7:
-				$money = $this->config->get("ジャックポット");
-				$this->addMoney($money, $p);
-				$this->oto($p, "good");
-				$this->slotb[$name] = false;
-				
-				$p->sendMessage("§b§lSLOT>> §6ジャックポット§bおめでとうございます！");
-				$p->sendMessage("§b§lSLOT>> §6{$money}円手に入れた！");
-				$p->sendMessage("§b§lSLOT>> §f当たったのでバッググラウンドスロットを停止します");
-				
-				
-				$this->getServer()->broadcastMessage("§lSLOT>> §a{$p->getName()}さんがジャックポット {$money}円を手に入れました！");
-				$this->getServer()->broadcastMessage("§lSLOT>> ジャックポットが{$this->config->get("初期ジャックポット")}に戻りました");
-				
-				$this->config->set("LastPlayer", $name);
-				$this->config->save();
-				$this->config->set("LastJackPot", $this->config->get("ジャックポット"));
-				$this->config->save();
-				
-				$this->scan($name, $this->config->get("ジャックポット"));
-				//$this->slotinfo();
-				
-				
-				$this->config->set("ジャックポット", $this->config->get("初期ジャックポット"));
-				$this->config->save();
-				break;
-			}
-		}else
-		{
-			$this->config->set("ジャックポット", $this->config->get("ジャックポット") + $this->config->get("値段"));
-			$this->config->save();
-			//$this->slotinfo();
-			$p->sendPopup("§b§lSLOT>> §cハズレ! §e{$s1}-{$s2}-{$s3} ジャックポット: {$this->config->get("ジャックポット")}円");
-			$money = $this->config->get("値段");
-			if($this->slotb[$name] == true)
-			{
-				if($this->getMoney($p) > $money && $this->canslot($p))
-				{
-					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bslot1"], [$p]),5);
-					$this->slot[$name] = true;
-				}else
-				{
-					$p->sendMessage("§l§bSLOT>> §c所持金が足りない もしくは 設定した金額まで所持金が減った のでバッググラウンドスロットを停止しました。");
-					$this->slotb[$name] = false;
-				}
-			}
-	}
-}
+    const SLOT = 0;
+    const SLOT_AUTO = 1;
+    const SLOT_BACK = 2;
 
-	public function kakutei1($p)
+    public $slot = [];
+    public $slota = [];
+    public $slotb = [];
+    public $ftp;
+    public $godp;
+
+    public $confirm_1, $confirm_2, $confirm_3;
+
+    /* @var Config */
+    public $config;
+
+    /* @var Config */
+    public $xyz;
+
+    /* @var Config */
+    public $info;
+
+    /* @var Config */
+    public $stop;
+
+
+    public function onEnable()
+    {
+
+        $this->confirm_1 = mt_rand(1, 9);
+        $this->confirm_2 = mt_rand(1, 9);
+        $this->confirm_3 = mt_rand(1, 9);
+
+        $this->godp = 0;
+
+        $this->getLogger()->info("=========================");
+        $this->getLogger()->info("SLOTを読み込みました");
+        $this->getLogger()->info("制作者: PawarenessC");
+        $this->getLogger()->info("ライセンス: NYSL Version 0.9982");
+        $this->getLogger()->info("http://www.kmonos.net/nysl/");
+        $this->getLogger()->info("バージョン:{$this->getDescription()->getVersion()}");
+        $this->getLogger()->info("スロットの確定番号は {$this->confirm_1}{$this->confirm_2}{$this->confirm_3} です");
+        $this->getLogger()->info("=========================");
+
+        $this->config = new Config($this->getDataFolder()."Setup.yml", Config::YAML,
+            [
+                "プラグイン" => "EconomyAPI",
+                "値段" => 100,
+                "ジャックポット以外の賞金" => 1000,
+                "初期ジャックポット" => 10000,
+                "ジャックポット" => 10000,
+                "ジャックポット限度" => 1000000,
+                "LastPlayer" => "NO NAME",
+                "LastJackPot" => 0,
+                "HighPlayer" => "NO NAME",
+                "HighJackPot" => 10000000,
+                "UpdateInterval" => 1,
+            ]);
+        $this->xyz = new Config($this->getDataFolder()."xyz.yml", Config::YAML,
+            [
+                "world" => "world",
+                "x" => 281,
+                "y" => 4,
+                "z" => 284,
+            ]);
+        $this->getServer()->loadLevel($this->xyz->get("world"));
+        $this->info = new Config($this->getDataFolder()."info.yml", Config::YAML,
+            [
+                "説明" => "改行をするときは{br}です",
+                "title" => "=-=-=現在のスロットの情報=-=-={br}",
+                "text" => "§b現在のジャックポット §6{jackpot}§f円{br}§b当選確定番号 §l§f{kakutei}§r§f番{br}§b最後のジャックポット当選者 §l§6{lastname} §f{lastjackpot}円{br}§a最高ジャックポット当選者 §l{highname} §d{highjp}",
+            ]);
+        $this->stop = new Config($this->getDataFolder() . "stop.yml", Config::YAML);
+
+        $this->system = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI");
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
+
+        $xyz = $this->xyz;
+        $x = $xyz->get("x");
+        $y = $xyz->get("y");
+        $z = $xyz->get("z");
+        $level_name = $xyz->get("world");
+        $level = $this->getServer()->getLevelByName($level_name);
+        $pos = new Vector3($x, $y, $z, $level);
+        $this->ftp = new FloatingTextParticle($pos,"DEBUG","DEBUG and DEBUG");
+        $level->addParticle($this->ftp);
+
+        $this->slotinfo();
+
+        $int = $this->config->get("UpdateInterval") * 20;
+        $this->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this, "slotinfo"]), $int);
+
+
+    }
+
+    public function onJoin(PlayerJoinEvent $event)
+    {
+        $player = $event->getPlayer();
+        $name = $player->getName();
+        $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "JoinType"], [$name]), 20);
+        $this->slot[$name] = false;
+
+        if (!$this->stop->exists($name)) {
+            $this->stop->set($name, 1000);
+            $this->stop->save();
+        }
+    }
+
+    public function JoinType($name)
+    {
+        $this->slota[$name] = false;
+        $this->slot[$name] = false;
+        $this->slotb[$name] = false;
+    }
+
+    public function onQuit(PlayerQuitEvent $event)
+    {
+        $name = $event->getPlayer()->getName();
+        $this->JoinType($name);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // slot  その名前のプレイヤーのスロットが行われているかどうか
+    // slota その名前のプレイヤーの自動抽選が有効かどうか
+    // slotb その名前のプレイヤーがバッググラウンドのスロットを行っているかどうか
+    ///////////////////////////////////////////////////////////////////////////////
+
+    public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool{
+        $name = $sender->getName();
+        switch ($label) {
+            case "slot":
+                $money = $this->getMoney($sender);
+                $price = $this->config->get("値段");
+                if ($price > $money) {
+                    $sender->sendMessage("§b§lSLOT>> §cお金が足りません！ スロットを一回回すには§f{$price}円§c必要です");
+                    break;
+                } elseif ($this->slot[$name]) {
+                    $sender->sendMessage("§b§lSLOT>> §cスロット中です。");
+                } else {
+                    $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot_1"], [$sender, self::SLOT]), 30);
+                    $sender->addTitle("§f[§e?§f]-[§e?§f]-[§e?§f]", "§6抽選を開始します...");
+                    $this->oto($sender, "pop");
+                    $this->slot[$name] = true;
+                }
+                break;
+
+            case "slotui":
+                if($sender instanceof Player) {
+                    if ($sender->isOp()) {
+                        $this->SlotUIa($sender);
+                    } else {
+                        $this->SlotUIg($sender);
+                    }
+                    break;
+                }else{
+                    $sender->sendMessage("§b§lSLOT>> §cゲームでこのコマンドを打ってください");
+                    break;
+                }
+        }
+        return true;
+    }
+
+    public function slot_1(Player $p, int $type)
+    {
+        $name = $p->getName();
+        switch ($type) {
+            case self::SLOT:
+                $s1 = rand(1, 9);
+                $this->sendslot($p, $s1);
+                //Server::getInstance()->broadcastMessage("{$name}は{$s1}");
+                $this->oto($p, "pop");
+                $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot_2"], [$p, self::SLOT, $s1]), 30);
+                break;
+            case self::SLOT_AUTO:
+                $s1 = rand(1, 12);
+                if ($s1 > 9) $s1 = 1;
+                $this->sendslot($p, $s1);
+                //Server::getInstance()->broadcastMessage("{$name}は{$s1}");
+                $this->oto($p, "pop");
+                $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot_2"], [$p, self::SLOT_AUTO, $s1]), 10);
+                break;
+        }
+    }
+
+    public function slot_2(Player $p, int $type, int $s1)
+    {
+        $name = $p->getName();
+        switch ($type) {
+            case self::SLOT:
+                $s2 = rand(1, 9);
+                $this->sendslot($p, $s1, $s2);
+                //Server::getInstance()->broadcastMessage("{$name}は{$s2}");
+                $this->oto($p, "pop");
+                $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot_3"], [$p, self::SLOT, $s1, $s2]), 30);
+                break;
+            case self::SLOT_AUTO:
+                $s2 = rand(1, 12);
+                if ($s2 > 9) $s2 = 2;
+                $this->sendslot($p, $s1, $s2);
+                //Server::getInstance()->broadcastMessage("{$name}は{$s2}");
+                $this->oto($p, "pop");
+                $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot_3"], [$p, self::SLOT_AUTO, $s1, $s2]), 10);
+                break;
+        }
+    }
+
+    public function slot_3(Player $p, int $type, int $s1, $s2)
+    {
+        $name = $p->getName();
+        switch ($type) {
+            case self::SLOT:
+                $s3 = rand(1, 9);
+                $this->sendslot($p, $s1, $s2, $s3);
+                //Server::getInstance()->broadcastMessage("{$name}は{$s3}");
+                $this->oto($p, "pop");
+                $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, self::SLOT, $s1, $s2]), 20);
+                break;
+            case self::SLOT_AUTO:
+                $s3 = rand(1, 12);
+                if ($s3 > 9) $s3 = 3;
+                $this->sendslot($p, $s1, $s2, $s3);
+                //Server::getInstance()->broadcastMessage("{$name}は{$s3}");
+                $this->oto($p, "pop");
+                $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "end"], [$p, self::SLOT_AUTO, $s1, $s2]), 10);
+                break;
+        }
+    }
+
+    public function end($p, $s1, $s2, $s3)
+    {
+        $money = $this->config->get("値段");
+        $name = $p->getName();
+        $this->cutMoney($p, $money);
+        $this->slot[$name] = false;
+        $confirm = mt_rand(1, 999);
+        $confirm1 = $this->confirm_1;
+        $confirm2 = $this->confirm_2;
+        $confirm3 = $this->confirm_3;
+
+        if ($s1 == $s2 and $s1 == $s3) {
+                switch ($s1) {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 8:
+                    case 9:
+
+                        $money = $this->config->get("ジャックポット以外の賞金");
+                        $this->addMoney($money, $p);
+                        $this->oto($p, "good");
+
+                        $p->sendMessage("§b§lSLOT>> §6ゾロ目おめでとうございます！");
+                        $p->sendMessage("§b§lSLOT>> §6{$money}円§a手に入れた！");
+                        if ($this->slota[$name]) {
+                            $p->sendMessage("§b§lSLOT>> §f当たったので再抽選を停止します");
+                        }
+
+                        $this->config->set("ジャックポット", $this->config->get("ジャックポット") + $this->config->get("値段"));
+                        $this->config->save();
+                        break;
+
+                    case 7:
+                        $money = $this->config->get("ジャックポット");
+                        $this->addMoney($money, $p);
+                        $this->oto($p, "good");
+
+                        $p->sendMessage("§b§lSLOT>> §6ジャックポット§bおめでとうございます！");
+                        $p->sendMessage("§b§lSLOT>> §6{$money}円手に入れた！");
+                        if ($this->slota[$name]) {
+                            $p->sendMessage("§b§lSLOT>> §f当たったので再抽選を停止します");
+                        }
+
+                        $this->getServer()->broadcastMessage("§lSLOT>> §a{$p->getName()}さんがジャックポット {$money}円を手に入れました！");
+                        $this->getServer()->broadcastMessage("§lSLOT>> ジャックポットが{$this->config->get("初期ジャックポット")}に戻りました");
+
+                        $this->config->set("LastPlayer", $name);
+                        $this->config->save();
+                        $this->config->set("LastJackPot", $this->config->get("ジャックポット"));
+                        $this->config->save();
+
+                        $this->scan($name, $this->config->get("ジャックポット"));
+
+                        $this->config->set("ジャックポット", $this->config->get("初期ジャックポット"));
+                        $this->config->save();
+
+
+                        $inv = $p->getInventory();
+                        $i = $inv->getItemInHand();
+                        $inv->setItemInHand(Item::get(ItemIds::TOTEM));
+                        $p->broadcastEntityEvent(ActorEventPacket::CONSUME_TOTEM);
+                        $inv->setItemInHand($i);/*冬月さんありがとうございました！*/
+
+
+                        $pk = new LevelEventPacket();
+                        $pk->evid = LevelEventPacket:: EVENT_SOUND_TOTEM;
+                        $pk->data = 0;
+                        $pk->position = $p->asVector3();
+                        $p->dataPacket($pk);
+                        break;
+                }
+        } elseif ($s1 == $confirm1 && $s2 == $confirm2 && $s3 == $confirm3 or $confirm == 1) { //確定ってやつ？ 起動時に3つの数字を乱数生成し、抽選番号がそれと合致するか、1/999の確率で確定を起こす
+            $p->sendMessage("§b§lSLOT>> §c残念...ハズレです...");
+            $this->JoinType($name); //スロットを全て停止
+            //Server::getInstance()->broadcastMessage("確定ハズレ");
+            $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "confirm_1_slot"], [$p]), 50);
+
+            $pk = new LevelEventPacket();
+            $pk->evid = LevelEventPacket::EVENT_GUARDIAN_CURSE;
+            $pk->data = 0;
+            $pk->position = $p->asVector3();
+            $p->dataPacket($pk);
+
+        } else {
+
+            $this->config->set("ジャックポット", $this->config->get("ジャックポット") + $this->config->get("値段"));
+            $this->config->save();
+            $p->sendMessage("§b§lSLOT>> §c残念...ハズレです...");
+            $p->sendMessage("§b§lSLOT>> §c現在のジャックポット§e{$this->config->get("ジャックポット")}円");
+            //Server::getInstance()->broadcastMessage("普通ハズレ");
+            $this->oto($p, "bad");
+            $money = $this->config->get("値段");
+            if ($this->slota[$name]) {
+                if ($this->getMoney($p) > $money && $this->canslot($p)) {
+                    $p->sendMessage("§l§bSLOT>> §a外れたので再抽選を行います");
+                    $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot_1"], [$p, self::SLOT_AUTO]), 20);
+                    $p->addTitle("§f[§e?§f]-[§e?§f]-[§e?§f]", "§6抽選を開始します...");
+                    $this->oto($p, "pop");
+                    $this->slot[$name] = true;
+                } else {
+                    $p->sendMessage("§l§bSLOT>> §c所持金が足りない もしくは 設定した金額まで所持金が減った ので再抽選を停止しました");
+                    $this->JoinType($name);
+                }
+            }
+        }
+    }
+
+    public function slot_back(Player $player)
+    {
+        $s1 = rand(1, 18);
+        $s2 = rand(1, 18);
+        $s3 = rand(1, 18);
+
+        if ($s1 > 9) $s1 = 1;
+        if ($s2 > 9) $s2 = 2;
+        if ($s3 > 9) $s3 = 3;
+
+        $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bend"], [$player, $s1, $s2, $s3]), 20);
+    }
+
+    public function bend(Player $p, $s1, $s2, $s3)
+    {
+        $money = $this->config->get("値段");
+        $name = $p->getName();
+        $this->cutMoney($p, $money);
+        $this->slot[$name] = false;
+        if ($s1 == $s2 && $s1 == $s3) {
+            switch ($s1) {
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 8:
+                case 9:
+
+                    $money = $this->config->get("ジャックポット以外の賞金");
+                    $this->addMoney($money, $p);
+                    $this->oto($p, "good");
+
+                    $p->sendMessage("§b§lSLOT>> §6ゾロ目おめでとうございます！ §f(§e{$s1}-{$s2}-{$s3}§f)");
+                    $p->sendMessage("§b§lSLOT>> §6{$money}円§a手に入れた！");
+
+                    $this->config->set("ジャックポット", $this->config->get("ジャックポット") + $this->config->get("値段"));
+                    $this->config->save();
+
+                    $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot_back"], [$p]), 5);
+                    $this->slot[$name] = true;
+                    break;
+
+                case 7:
+                    $money = $this->config->get("ジャックポット");
+                    $this->addMoney($money, $p);
+                    $this->oto($p, "good");
+                    $this->slotb[$name] = false;
+
+                    $p->sendMessage("§b§lSLOT>> §6ジャックポット§bおめでとうございます！");
+                    $p->sendMessage("§b§lSLOT>> §6{$money}円手に入れた！");
+                    $p->sendMessage("§b§lSLOT>> §f当たったのでバッググラウンドスロットを停止します");
+
+
+                    $this->getServer()->broadcastMessage("§lSLOT>> §a{$p->getName()}さんがジャックポット {$money}円を手に入れました！");
+                    $this->getServer()->broadcastMessage("§lSLOT>> ジャックポットが{$this->config->get("初期ジャックポット")}に戻りました");
+
+                    $this->config->set("LastPlayer", $name);
+                    $this->config->set("LastJackPot", $this->config->get("ジャックポット"));
+                    $this->config->save();
+
+                    $this->scan($name, $this->config->get("ジャックポット"));
+
+                    $this->config->set("ジャックポット", $this->config->get("初期ジャックポット"));
+                    $this->config->save();
+                    break;
+            }
+        } else {
+            $this->config->set("ジャックポット", $this->config->get("ジャックポット") + $this->config->get("値段"));
+            $this->config->save();
+            $p->sendPopup("§b§lSLOT>> §cハズレ! §e{$s1}-{$s2}-{$s3} ジャックポット: {$this->config->get("ジャックポット")}円");
+            $money = $this->config->get("値段");
+            if ($this->slotb[$name]) {
+                if ($this->getMoney($p) > $money && $this->canslot($p)) {
+                    $this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot_back"], [$p]), 10);
+                    $this->slot[$name] = true;
+                } else {
+                    $p->sendMessage("§l§bSLOT>> §c所持金が足りない もしくは 設定した金額まで所持金が減った のでバッググラウンドスロットを停止しました。");
+                    $this->slotb[$name] = false;
+                }
+            }
+        }
+    }
+
+	public function confirm_1_slot($p)
 	{
 		$p->sendMessage("§l§bSLOT>> §aおや...？、なにやら様子が....");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "kakutei2"], [$p]),50);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "confirm_2_slot"], [$p]),50);
 		$this->oto($p, "what");
 		$this->oto($p, "good");
 		$this->oto($p, "bad");
 	}
 	
-	public function kakutei2($p)
+	public function confirm_2_slot($p)
 	{
 		$p->sendMessage("§l§bSLOT>> §cこれは...確定....!?!?");
-		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "kakutei3"], [$p]),80);
+		$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "confirm_3_slot"], [$p]),80);
 		$this->oto($p, "what");
 		$this->oto($p, "good");
 		$this->oto($p, "bad");
 	}
 	
-	public function kakutei3($p)
+	public function confirm_3_slot($p)
 	{
 		$p->sendMessage("§l§bSLOT>> §eおめでとうございます、あなたは当選しました！！！");
 		$money = $this->config->get("ジャックポット");
@@ -626,13 +502,10 @@ class Main extends pluginBase implements Listener
 		$this->JoinType($name);
 		
 		$this->config->set("LastPlayer", $name);
-		$this->config->save();
 		$this->config->set("LastJackPot", $this->config->get("ジャックポット"));
 		$this->config->save();
 		
 		$this->scan($name, $this->config->get("ジャックポット"));
-		//$this->slotinfo();
-		
 		
 		$this->config->set("ジャックポット", $this->config->get("初期ジャックポット"));
 		$this->config->save();
@@ -709,8 +582,6 @@ class Main extends pluginBase implements Listener
 		$this->config->save();
 		
 		$this->scan($name, $this->config->get("ジャックポット"));
-		//$this->slotinfo();
-		
 		
 		$this->config->set("ジャックポット", $this->config->get("初期ジャックポット"));
 		$this->config->save();
@@ -774,26 +645,22 @@ class Main extends pluginBase implements Listener
  	{
  		$plugin = $this->config->get("プラグイン");
  		$name = $p->getName();
- 		if($plugin == "EconomyAPI")
- 		{
+ 		if($plugin == "EconomyAPI") {
  	  		$this->system->reduceMoney($name, $money);
  		}
  		
- 		if($plugin == "MixCoinSystem")
- 		{
+ 		if($plugin == "MixCoinSystem") {
  			MixCoinSystem::getInstance()->MinusCoin($name,$money);
  		}
  		
- 		if($plugin == "MoneySystem")
- 		{
+ 		if($plugin == "MoneySystem") {
  			API::getInstance()->reduce($p, $money, "SLOT", "スロット料金");
  		}
  	}
  	
  	public function oto($player, $id)
  	{
- 		switch($id)
- 		{
+ 		switch($id) {
  			case "pop": //抽選中
  			$pk = new PlaySoundPacket;
 			$pk->soundName = "random.pop";
@@ -839,6 +706,20 @@ class Main extends pluginBase implements Listener
 			break;
  		}
  	}
+
+ 	public function sendslot(Player $p, $s1, $s2="§k?§r", $s3="§k?§r"){
+	    if($s1 == 7) {
+            $p->addTitle("§f[§6{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]");
+        }
+        elseif($s1 == 7 && $s2 == 7){
+            $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§r§f]-[§c{$s3}§f]");
+        }
+	    elseif($s1 == 7 && $s2 == 7 && $s3 == 7){
+            $p->addTitle("§f[§6{$s1}§f]-[§6{$s2}§r§f]-[§6{$s3}§r§f]");
+        }else{
+            $p->addTitle("§f[§e{$s1}§f]-[§a{$s2}§f]-[§c{$s3}§f]");
+        }
+    }
  	
  	public function scan($name, $jp){
 	if($this->config->get("LastHighJackPot") < $jp){ $this->config->set("HighJackPot", $jp); $this->config->save(); }
@@ -846,11 +727,6 @@ class Main extends pluginBase implements Listener
 	
 	public function slotinfo()
  	{
- 		$xyz = $this->xyz;
- 		$level_name = $xyz->get("world");
- 		$level = $this->getServer()->getLevelByName($level_name);
- 		$this->ftp->setInvisible();
-		$level->addParticle($this->ftp);
 		
 		$xyz = $this->xyz;
  		$level_name = $xyz->get("world");
@@ -858,11 +734,11 @@ class Main extends pluginBase implements Listener
  		$this->ftp->setInvisible();
 		$level->addParticle($this->ftp);
  		
- 		$kaku1 = $this->kaku1;
-		$kaku2 = $this->kaku2;
-		$kaku3 = $this->kaku3;
+ 		$confirm1 = $this->confirm_1;
+		$confirm2 = $this->confirm_2;
+		$confirm3 = $this->confirm_3;
 		
-		$kakutei = $kaku1.$kaku2.$kaku3; //.をつけてくっつける
+		$kakutei = $confirm1.$confirm2.$confirm3; //.をつけてくっつける
 		$jackpot = $this->config->get("ジャックポット");
 		$lastname = $this->config->get("LastPlayer");
 		$lastjackpot = $this->config->get("LastJackPot");
@@ -900,31 +776,39 @@ class Main extends pluginBase implements Listener
 		$level->addParticle($this->ftp);
 	}
 	
-	public function SlotUIg($p)
+	public function SlotUIg(Player $p)
 	{
+	    $bool_auto = $this->slota[$p->getName()];
+	    $bool_back = $this->slotb[$p->getName()];
+	    if($bool_auto){ $auto = "§bON§f"; }else{ $auto = "§7OFF§f"; }
+        if($bool_back){ $auto_b = "§bON§f"; }else{ $auto_b = "§7OFF§f"; }
 		$buttons[] = [
 		'text' => "スロットを行う"];
 		$buttons[] = [
-		'text' => "autoslotを行う/キャンセル"];
+		'text' => "autoslotを行う/キャンセル\n現在:§l{$auto}"];
 		$buttons[] = [
-		'text' => "backslotを行う/キャンセル"];
+		'text' => "backslotを行う/キャンセル\n現在:§l{$auto_b}"];
 		$buttons[] = [
 		'text' => "設定"];
 		$this->sendForm($p,"SLOT","            §lv§b{$this->getDescription()->getVersion()}     \n",$buttons,8000); //いえい
 	}
 	
-	public function SlotUIa($p)
+	public function SlotUIa(Player $p)
 	{
+        $bool_auto = $this->slota[$p->getName()];
+        $bool_back = $this->slotb[$p->getName()];
+        if($bool_auto){ $auto = "§bON§f"; }else{ $auto = "§7OFF§f"; }
+        if($bool_back){ $auto_b = "§bON§f"; }else{ $auto_b = "§7OFF§f"; }
 		$buttons[] = [
 		'text' => "スロットを行う"];
 		$buttons[] = [
-		'text' => "autoslotを行う/キャンセル"];
-		$buttons[] = [
-		'text' => "backslotを行う/キャンセル"];
+		'text' => "autoslotを行う/キャンセル\n現在:§l{$auto}"];
+        $buttons[] = [
+        'text' => "backslotを行う/キャンセル\n現在:§l{$auto_b}"];
 		$buttons[] = [
 		'text' => "設定"];
 		$buttons[] = [
-		'text' => "SLOTの設定"];
+		'text' => "SLOTのシステム設定"];
 		$buttons[] = [
 		'text' => "デバッグ\n§l§4悪用厳禁"];
 		$this->sendForm($p,"SLOT","             §l§b{$this->getDescription()->getVersion()}§r     \n§l権限者用のFormです\n",$buttons,8000);
@@ -967,8 +851,7 @@ class Main extends pluginBase implements Listener
 					break;
 					
 					case 1://autoslot
-					if($this->slota[$name] == false)
-					{
+					if($this->slota[$name] == false) {
 						$p->sendMessage("§b§lSLOT>> §bスロットの自動化を有効にしました。");
 						$this->slota[$name] = true;
 						break;
@@ -982,37 +865,30 @@ class Main extends pluginBase implements Listener
 					case 2: //backslot
 					$money = $this->getMoney($p);
 					$price = $this->config->get("値段");
-					if($price < $money)
-					{
-						if($this->slot[$name] == false)
-						{
-							if($this->slotb[$name] == false)
-							{
+					if($price < $money) {
+						if($this->slot[$name] == false) {
+							if($this->slotb[$name] == false) {
 								$p->sendMessage("§l§bSLOT>> §cバッググラウンドのスロットを開始します...");
 								$this->slotb[$name] = true;
-								$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "bslot1"], [$p]),20);
+								$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "slot_back"], [$p]),20);
+
 								break;
 							}else{
-							
 								$p->sendMessage("§l§bSLOT>> §cバッググラウンドのスロットを停止します...");
 								$this->slotb[$name] = false;
 								break;
 							}
-						}elseif($this->slotb[$name] == true)
-						{
+						}elseif($this->slotb[$name] == true) {
 							$p->sendMessage("§l§bSLOT>> §cバッググラウンドのスロットを停止します...");
 							$this->slotb[$name] = false;
 							$this->slot[$name] = false;
 							break;
-						}else
-						{
-						
+						}else {
 							$p->sendMessage("§b§lSLOT>> §c通常スロットが抽選を行っています、しばらくお待ちください。");
-							$p->sendMessage("§b§lSLOT>> §cもしも自動抽選を行っている場合は/autoslotをもう一回実行し、停止してください");
+							$p->sendMessage("§b§lSLOT>> §cもしも自動抽選を行っている場合は停止してください");
 							break;
-							}
+						}
 						}else{
-						
 							$p->sendMessage("§b§lSLOT>> §cお金が足りません！ スロットを回すには§f{$price}円§c必要です");
 							break;
 						}
@@ -1028,13 +904,13 @@ class Main extends pluginBase implements Listener
 						$buttons[] = [
 						'text' => "浮き文字の座標変更"];//0
 						$buttons[] = [
-						'text' => "浮き文字の内容変更"];//1
+						'text' => "JPを変更"];//1
 						$buttons[] = [
-						'text' => "JPを変更"];//2
+						'text' => "1回の値段を変更"];//2
 						$buttons[] = [
-						'text' => "1回の値段を変更"];//3
-						$buttons[] = [
-						'text' => "浮き文字を一旦消す"];//4
+						'text' => "浮き文字を一旦消す"];//3
+                        $buttons[] = [
+                        'text' => "準備中"];//4
 						$this->sendForm($p,"SLOT","§l設定したい項目を選択してください\n",$buttons,8002);
 						break;
 						
@@ -1128,40 +1004,7 @@ class Main extends pluginBase implements Listener
 						$this->getServer()->loadLevel($this->xyz->get("world"));
 						break;
 						
-						case 1://内容変更
-						$data = [
-						"type" => "custom_form",
-						"title" => "SETUP",
-						"content" => [
-							[
-								"type" => "label",
-								"text" => "§lタイトルは一番上の行、テキストはそれ以降の文です\n\n".
-									"改行..{br}\n".
-									"ジャックポット..{jackpot}\n".
-									"当選確定番号..{kakutei}\n".
-									"最後のジャックポット当選者..{lastname}\n".
-									"最後のジャックポット金額...{lastjackpot}\n".
-									"最高ジャックポット当選者...{highname}\n".
-									"最高ジャックポット金額...{highjp}\n",
-							],
-							[
-								"type" => "input",
-								"text" => "§lタイトル",
-								"placeholder" => "",
-								"default" => "",
-							],
-							[
-								"type" => "input",
-								"text" => "§lテキスト",
-								"placeholder" => "",
-								"default" => "",
-							]
-						]
-						];
-						$this->createWindow($p, $data, 8004);
-						break;
-						
-						case 2://JP変更
+						case 1://JP変更
 						$data = [
 						"type" => "custom_form",
 						"title" => "SETUP",
@@ -1177,7 +1020,7 @@ class Main extends pluginBase implements Listener
 						$this->createWindow($p, $data, 8005);
 						break;
 						
-						case 3://値段変更
+						case 2://値段変更
 						$data = [
 						"type" => "custom_form",
 						"title" => "SETUP",
@@ -1193,7 +1036,7 @@ class Main extends pluginBase implements Listener
 						$this->createWindow($p, $data, 8006);
 						break;
 						
-						case 4: //一旦消す
+						case 3: //一旦消す
 						$xyz = $this->xyz;
  						$level_name = $xyz->get("world");
  						$level = $this->getServer()->getLevelByName($level_name);
@@ -1202,14 +1045,6 @@ class Main extends pluginBase implements Listener
 						$p->sendMessage("§l§bSLOT>> §c浮き文字を一旦消去しました");
 						break;
 					}
-					break;
-					
-					case 8004://内容変更結果
-					$this->info->set("title",$result[1]);
-					$this->info->set("text",$result[2]);
-					$this->info->save();
-					
-					$p->sendMessage("§l§bSLOT>> §c浮き文字の内容を変更しました！");
 					break;
 					
 					case 8005: //JP変更結果
@@ -1232,7 +1067,7 @@ class Main extends pluginBase implements Listener
 					}else{
 					$s1 = mt_rand(1,9);
 					$this->getServer()->broadcastMessage("§lSLOT>> §a{$name}さんがジャックポットのデバッグ機能を使用しました！");
-					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gslot2"], [$p,$s1]),10);
+					$this->getScheduler()->scheduleDelayedTask(new CallbackTask([$this, "gPerformance1"], [$p]),10);
 					}
 					break;
 				}
@@ -1272,7 +1107,9 @@ class Main extends pluginBase implements Listener
 
 class CallbackTask extends Task{
 
-	public function __construct(callable $callable, array $args = []){
+	private $callable, $args;
+
+    public function __construct(callable $callable, array $args = []){
 		$this->callable = $callable;
 		$this->args = $args;
 	}
@@ -1282,5 +1119,3 @@ class CallbackTask extends Task{
 	}
 
 }
-
-
