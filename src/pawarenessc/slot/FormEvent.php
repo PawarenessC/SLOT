@@ -1,6 +1,6 @@
 <?php
 
-namespace pawareness\slot;
+namespace pawarenessc\slot;
 
 use pawarenessc\slot\Main;
 use pocketmine\event\Listener;

@@ -37,7 +37,7 @@ use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 
 use pawarenessc\slot\Money;
-use pawareness\slot\FormEvent;
+use pawarenessc\slot\FormEvent;
 
 use pawarenessc\slot\CallbackTask;
 use pawarenessc\slot\language\Language;
