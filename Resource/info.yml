@@ -1,0 +1,17 @@
+##INFOの設定ファイルです。
+
+## {br}...改行
+## {jackpot}...現在のジャックポット
+## {kakutei}...当選確定番号
+## {lastname}...最後のジャックポット当選者
+## {lastjackpot}...最後のジャックポット当選額
+## {highname}...最高額ジャックポット当選者
+## {highjp}...最高当選額
+
+title: =-=-=現在のスロットの情報=-=-={br}
+text: §b現在のジャックポット §6{jackpot}§f円{br}§b当選確定番号 §l§f{kakutei}§r§f番{br}§b最後のジャックポット当選者
+ §l§6{lastname} §f{lastjackpot}円{br}§a最高ジャックポット当選者 §l{highname} §d{highjp}
+x: 218
+y: 4
+z: 218
+world: world
